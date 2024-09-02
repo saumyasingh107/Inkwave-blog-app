@@ -14,22 +14,29 @@ export const userRouter=new Hono<{
 userRouter.post('/signup',async (c) => {
 
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate())
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
 
-  const body=await c.req.json();
- const user=await prisma.user.create({
-  data:{
-    email:body.email,
-    passwords:body.passwords,
-    name:body.name
-  }
- })
- const token=await sign({id:user.id},c.env.JWT_KEY);
- return c.json({jwt:token})
-
-})
-
+    const body = await c.req.json();
+  
+    try {
+      const user = await prisma.user.create({
+        data: {
+          email: body.email,
+          passwords: body.passwords,
+        }
+      })
+      const jwt = await sign({
+        id: user.id
+      }, c.env.JWT_KEY);
+  
+      return c.json({jwt})
+    } catch(e) {
+      console.log(e);
+      c.status(411);
+      return c.text('Invalid')
+    }
+  })
 
 userRouter.post('/signin', async(c) => {
   const prisma = new PrismaClient({

@@ -14,14 +14,12 @@ export const blogRouter = new Hono<{
 }>();
 
 blogRouter.use("/*", async (c, next) => {
-  // const {success}=
-  const authheader = c.req.header("authorization") || "";
 
- 
-    const user = await verify(authheader, c.env.JWT_KEY);
+  const authheader = c.req.header("authorization") || "";
+  const user = await verify(authheader, c.env.JWT_KEY);
     if (user) {
       c.set("userId", user.id as string);
-      next();
+      await next();
     } else {
       c.status(401);
       return c.json({ error: "unauthorized" });
@@ -69,43 +67,10 @@ blogRouter.put("/", async (c) => {
   return c.json({id:blog.id});
 });
 
-blogRouter.get(" /:id", async (c) => {
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
-  const id = c.req.param("id");
-try{
-
-  const post = await prisma.post.findFirst({
-    where: {
-      id: Number(id)
-    },
-    select: {
-                id: true,
-                title: true,
-                content: true,
-                author: {
-                  select: {
-                    name: true
-                  }
-                }
-              }
-            });
-            return c.json({
-              post
-            });
-          }
-     catch(e) {
-        c.status(411); // 4
-        return c.json({
-            message: "Error while fetching blog post"
-        });
-    }
-})
 
 blogRouter.get("/bulk", async (c) => {
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
+    datasourceUrl: c.env.DATABASE_URL, 
   }).$extends(withAccelerate());
   const posts = await prisma.post.findMany({
     select:{
@@ -122,3 +87,39 @@ blogRouter.get("/bulk", async (c) => {
 
   return c.json({ posts });
 });
+
+
+blogRouter.get(" /:id", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+  const id = c.req.param("id");
+
+try{
+
+  const blog = await prisma.post.findFirst({
+    where: {
+      id:id
+    },
+    select: {
+                id: true,
+                title: true,
+                content: true,
+                author: {
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            });
+            return c.json({
+              blog
+            });
+          }
+     catch(e) {
+        c.status(411);
+        return c.json({
+            message: "Error while fetching blog post"
+        });
+    }
+})
