@@ -13,39 +13,48 @@ export const blogRouter = new Hono<{
   };
 }>();
 
-blogRouter.use("/*", async (c, next) => {
 
-  const authheader = c.req.header("authorization") || "";
-  const user = await verify(authheader, c.env.JWT_KEY);
-    if (user) {
-      c.set("userId", user.id as string);
-      await next();
-    } else {
-      c.status(401);
-      return c.json({ error: "unauthorized" });
+blogRouter.use("/*", async (c, next) => {
+    const authHeader = c.req.header("authorization") || "";
+    try {
+        const user = await verify(authHeader, c.env.JWT_KEY);
+        if (user) {
+            c.set("userId", user.id as string);
+            await next();
+        } else {
+            c.status(403);
+            return c.json({
+                message: "You are not logged in"
+            })
+        }
+    } catch(e) {
+        c.status(403);
+        return c.json({
+            message: "You are not logged in"
+        })
     }
-  
-  
 });
 
 blogRouter.post("/", async (c) => {
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
-  const userId = c.get("userId");
-  const body = await c.req.json();
-  const blog = await prisma.post.create({
-    data: {
-      title: body.title,
-      content: body.content,
-      authorid:userId,
-    },
-  });
-  return c.json({
-    id: blog.id,
-  });
-});
+    const body = await c.req.json();
+  
+    const authorId = c.get("userId");
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
 
+    const blog = await prisma.post.create({
+        data: {
+            title: body.title,
+            content: body.content,
+            authorId: Number(authorId)
+        }
+    })
+
+    return c.json({
+        id: blog.id
+    })
+})
 
 blogRouter.put("/", async (c) => {
   const prisma = new PrismaClient({
@@ -57,7 +66,7 @@ blogRouter.put("/", async (c) => {
   const blog = await prisma.post.update({
     where: {
       id: body.id,
-      authorid: userId,
+      authorId: Number(userId),
     },
     data: {
       title: body.title,
@@ -99,7 +108,7 @@ try{
 
   const blog = await prisma.post.findFirst({
     where: {
-      id:id
+      id:Number(id)
     },
     select: {
                 id: true,
