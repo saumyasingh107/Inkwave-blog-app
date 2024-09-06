@@ -1,22 +1,22 @@
 import z from "zod";
 
-const signupinput=z.object({
+export const signupinput=z.object({
     username:z.string().email(),    
     password:z.string().min(6),
     name:z.string().optional()
 })
 
-const signininput=z.object({
+ export const signininput=z.object({
     username:z.string().email(),    
     password:z.string().min(6),
 })
 
-const createBlog=z.object({
+export const createBlog=z.object({
     title:z.string(),    
     content:z.string()
 })
 
-const  UpdateBlog=z.object({
+export const  UpdateBlog=z.object({
     title:z.string(),    
     content:z.string(),
     id:z.number()
