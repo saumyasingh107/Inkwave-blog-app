@@ -15,30 +15,35 @@ export const blogRouter = new Hono<{
 
 
 blogRouter.use("/*", async (c, next) => {
-    const authHeader = c.req.header("authorization") || "";
-    try {
-        const user = await verify(authHeader, c.env.JWT_KEY);
-        if (user) {
-            c.set("userId", user.id as string);
-            await next();
-        } else {
-            c.status(403);
-            return c.json({
-                message: "You are not logged in"
-            })
-        }
-    } catch(e) {
+  const authHeader = c.req.header("authorization") || "";
+console.log("Authorization Header:", authHeader); 
+
+try {
+    const user = await verify(authHeader, c.env.JWT_KEY);c
+    console.log("Decoded JWT:", user);
+    if (user) {
+        console.log("User Verified:", user);
+        c.set("userId", user.user as string);
+        console.log("Set userId in context:", user.user);
+        await next();
+    } else { 
         c.status(403);
-        return c.json({
-            message: "You are not logged in"
-        })
+        return c.json({ message: "You are not logged in" });
     }
+} catch (e) {
+    console.error("JWT Verification Error:", e);
+    c.status(403);
+    return c.json({ message: "You are not logged in" });
+}
 });
 
 blogRouter.post("/", async (c) => {
+  console.log("POST /api/v1/blog route hit");
     const body = await c.req.json();
   
-    const authorId = c.get("userId");
+    const userID = c.get("userId");
+
+    console.log("this is the author id ",userID)
     const prisma = new PrismaClient({
       datasourceUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate())
@@ -47,7 +52,7 @@ blogRouter.post("/", async (c) => {
         data: {
             title: body.title,
             content: body.content,
-            authorId: Number(authorId)
+            authorId: Number(userID)
         }
     })
 
@@ -98,7 +103,7 @@ blogRouter.get("/bulk", async (c) => {
 });
 
 
-blogRouter.get(" /:id", async (c) => {
+blogRouter.get("/:id", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
