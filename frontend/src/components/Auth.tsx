@@ -1,6 +1,8 @@
 import { ChangeEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signupinput } from "../../../common/src/index";
+import axios from "axios";
+import { BAKCEND_URL } from "../Config";
 
 const Auth = ({ type }: { type: "signin" | "signup" }) => {
   // const [username,setUsername]=useState("");
@@ -11,6 +13,19 @@ const Auth = ({ type }: { type: "signin" | "signup" }) => {
     username: "",
     password: "",
   });
+  const navigate=useNavigate()
+  const sendRequest=async ()=>{
+    try{
+
+        const response=await axios.post(`${BAKCEND_URL}/api/v1/user/${type==="signup"?"signup":"signin"}`,inputs);
+        const jwt= response.data.token;
+        console.log(response.data)
+        localStorage.setItem("token",jwt);
+        navigate("/blog")
+    }catch(e){
+
+    }
+  }
   return (
     <div className=" h-screen flex justify-center flex-col">
       <div className="flex justify-center">
@@ -33,7 +48,7 @@ const Auth = ({ type }: { type: "signin" | "signup" }) => {
             </div>
           </div>
           <div>
-            <Labeled
+           {type==="signup"? <Labeled
               label="Name"
               type="text"
               placeholder="abc"
@@ -43,21 +58,28 @@ const Auth = ({ type }: { type: "signin" | "signup" }) => {
                   name: e.target.value,
                 });
               }}
-            />
+            />:null}
             <Labeled
-              label="Name"
+              label="Username"
               type="text"
               placeholder="abc@gmail.com"
-              onchange={(e) => {}}
+              onchange={(e) => { setInputs({
+                  ...inputs,
+                  username: e.target.value,
+                });}}
             />
             <Labeled
               label="Password"
               type="password"
               placeholder="*****"
-              onchange={(e) => {}}
+              onchange={(e) => { setInputs({
+                  ...inputs,
+                  password: e.target.value,
+                });}}
             />
             <button
               type="button"
+              onClick={sendRequest}
               className="text-white w-full bg-gray-800 mt-4 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
             >
               {type === "signup" ? "Sign up" : "Sign in"}
