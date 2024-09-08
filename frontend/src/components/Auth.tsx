@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { signupinput } from "../../../common/src/index";
 import axios from "axios";
 import { BAKCEND_URL } from "../Config";
-
 const Auth = ({ type }: { type: "signin" | "signup" }) => {
   // const [username,setUsername]=useState("");
   // const [password,setPassword]=useState("");
@@ -17,7 +16,7 @@ const Auth = ({ type }: { type: "signin" | "signup" }) => {
   const sendRequest=async ()=>{
     try{
 
-        const response=await axios.post(`${BAKCEND_URL}/api/v1/user${type==="signup"?"/":"/signin"}`,inputs);
+        const response=await axios.post(`${BAKCEND_URL}/api/v1/user${type==="signup"?"/signup":"/signin"}`,inputs);
         const jwt= response.data.token;
         console.log(response.data)
         localStorage.setItem("token",jwt);
