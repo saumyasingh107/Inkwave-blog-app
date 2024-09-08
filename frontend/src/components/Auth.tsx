@@ -97,20 +97,20 @@ const Auth = ({ type }: { type: "signin" | "signup" }) => {
           />
 
           <div className="max-w-sm">
-            <label className="block text-sm mb-2 dark:text-white">Password</label>
+            <label className="block mb-2 text-sm font-medium">Password</label>
             <div className="relative">
               <input
                 onChange={(e) => {
                   setInputs({ ...inputs, password: e.target.value });
                 }}
                 id="hs-toggle-password"
-                type={showPassword ? "text" : "password"}  // Toggle input type
-                className="border text-sm rounded-lg block w-full p-2.5 border-gray-500 dark:placeholder-gray-400"
+                type={showPassword ? "text" : "password"} 
+                className="border text-sm rounded-lg block w-full  p-2.5 border-gray-500 dark:placeholder-gray-400"
                 placeholder="Enter password"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}  // Toggle visibility on click
+                onClick={() => setShowPassword(!showPassword)} 
                 className="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
               >
                 {showPassword ? (
