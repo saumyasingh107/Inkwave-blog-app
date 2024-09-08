@@ -1,1 +1,1 @@
-export  const BAKCEND_URL="http://127.0.0.1:8787"
+export  const BAKCEND_URL="https://backend.7226shivam1007.workers.dev"
