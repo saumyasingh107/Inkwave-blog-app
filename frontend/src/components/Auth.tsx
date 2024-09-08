@@ -3,6 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { signupinput } from "../../../common/src/index";
 import axios from "axios";
 import { BAKCEND_URL } from "../Config";
+import { Bounce, ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 const Auth = ({ type }: { type: "signin" | "signup" }) => {
   // const [username,setUsername]=useState("");
   // const [password,setPassword]=useState("");
@@ -16,12 +21,34 @@ const Auth = ({ type }: { type: "signin" | "signup" }) => {
   const sendRequest=async ()=>{
     try{
 
-        const response=await axios.post(`${BAKCEND_URL}/api/v1/user${type==="signup"?"/signup":"/signin"}`,inputs);
+        const response=await axios.post(`${BAKCEND_URL}/api/v1/user/${type==="signup"?"signup":"signin"}`,inputs);
         const jwt= response.data.token;
         console.log(response.data)
         localStorage.setItem("token",jwt);
-        navigate("/blogs")
+            toast.success(`${type==="signup"?"Registered Successfully":"Login Successfully"}`, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+      transition: Bounce,
+    });
+        setTimeout(()=>{
+            navigate("/blogs")},2000)
     }catch(e){
+         console.error("Error during request:", e);
+    toast.error("Something went wrong, please try again!", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+      transition: Bounce,
+    });
 
     }
   }
@@ -86,6 +113,7 @@ const Auth = ({ type }: { type: "signin" | "signup" }) => {
           </div>
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };
